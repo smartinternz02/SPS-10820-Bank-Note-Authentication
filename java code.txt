@@ -1,0 +1,157 @@
+DATA ANALYSIS:
+package org.ml;
+import java.io.IOException;
+import tech.tablesaw.api.Table;
+import tech.tablesaw.plotly.Plot;
+import tech.tablesaw.plotly.components.Figure;
+import tech.tablesaw.plotly.components.Layout;
+import tech.tablesaw.plotly.traces.HistogramTrace;
+
+public class DataAnalysis {
+	
+	public static void main(String args[])
+	{
+		System.out.println("DataAnalysis");
+		
+		try {
+			Table bank_data = Table.read().csv("C:\\eclipse\\org.ml\\src\\main\\java\\org\\ml\\data_banknote_authentication.csv");
+			System.out.println(bank_data.shape());
+			
+			System.out.println(bank_data.first(4));
+			System.out.println(bank_data.last(4));
+			
+			System.out.println(bank_data.structure());
+			
+			System.out.println(bank_data.summary());
+			
+			Layout layout1 = Layout.builder().title("Distribution of VARIANCE").build();
+			HistogramTrace trace1= HistogramTrace.builder(bank_data.nCol("Variance")).build();
+			Plot.show(new Figure(layout1,trace1));
+			
+			///Layout layout3 = Layout.builder().title("").build();
+			///BoxTrace trace3= BoxTrace.builder(bank_data.categoricalColumn("Skewness"),bank_data.nCol("Variance")).build();
+			///Plot.show(new Figure(layout3,trace3));
+			
+			
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+}
+LINEAR REGRESSION:
+package org.ml;
+import java.io.IOException;
+import weka.classifiers.Evaluation;
+import weka.classifiers.functions.LinearRegression;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+
+public class LinearReg {
+		public static void main(String[] args) throws Exception {
+			DataSource source =new DataSource("C:\\\\eclipse\\\\org.ml\\\\src\\\\main\\\\java\\\\org\\\\ml\\\\data_banknote_authentication.csv");
+			Instances dataset=source.getDataSet();
+			dataset.setClassIndex(dataset.numAttributes()-1);
+			//linear Regression
+			LinearRegression lr=new LinearRegression();
+			lr.buildClassifier(dataset);
+			
+			Evaluation lreval =new Evaluation(dataset);
+		    lreval.evaluateModel(lr,dataset);
+			System.out.println(lreval.toSummaryString());
+			
+			
+		}
+
+	}
+LOGISTIC REGRESSION:
+package org.ml;
+import java.util.Arrays;
+
+import weka.classifiers.Classifier;
+import weka.classifiers.evaluation.Evaluation;
+import weka.core.Instance;
+import weka.core.Instances;
+import weka.core.converters.ConverterUtils.DataSource;
+
+public class LogisticRegression{		
+		public static Instances getInstances (String filename)
+		{
+			
+			DataSource source;
+			Instances dataset = null;
+			try {
+				source = new DataSource(filename);
+				dataset = source.getDataSet();
+				dataset.setClassIndex(dataset.numAttributes()-1);
+				
+				
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				
+			}
+			
+			return dataset;
+		}
+		
+		public static void main(String[] args) throws Exception{
+
+			Instances train_data = getInstances("C:\\eclipse\\org.ml\\src\\main\\java\\org\\ml\\data_banknote_authentication_training1.arff");
+			Instances test_data = getInstances("C:\\eclipse\\org.ml\\src\\main\\java\\org\\ml\\data_banknote_authentication_testing1.arff");
+			System.out.println(train_data.size());
+			
+			/** Classifier here is Linear Regression */
+			Classifier classifier = new weka.classifiers.functions.Logistic();
+			/** */
+			classifier.buildClassifier(train_data);
+			
+			
+			/**
+			 * train the algorithm with the training data and evaluate the
+			 * algorithm with testing data
+			 */
+			Evaluation eval = new Evaluation(train_data);
+			eval.evaluateModel(classifier, test_data);
+			/** Print the algorithm summary */
+			System.out.println("** Logistic Regression Evaluation with Datasets **");
+			System.out.println(eval.toSummaryString());
+//			System.out.print(" the expression for the input data as per alogorithm is ");
+//			System.out.println(classifier);
+			
+			double confusion[][] = eval.confusionMatrix();
+			System.out.println("Confusion matrix:");
+			for (double[] row : confusion)
+				System.out.println(	 Arrays.toString(row));
+			System.out.println("-------------------");
+
+			System.out.println("Area under the curve");
+			System.out.println( eval.areaUnderROC(0));
+			System.out.println("-------------------");
+			
+			System.out.println(eval.getAllEvaluationMetricNames());
+			
+			System.out.print("Recall :");
+			System.out.println(Math.round(eval.recall(1)*100.0)/100.0);
+			
+			System.out.print("Precision:");
+			System.out.println(Math.round(eval.precision(1)*100.0)/100.0);
+			System.out.print("F1 score:");
+			System.out.println(Math.round(eval.fMeasure(1)*100.0)/100.0);
+			
+			System.out.print("Accuracy:");
+			double acc = eval.correct()/(eval.correct()+ eval.incorrect());
+			System.out.println(Math.round(acc*100.0)/100.0);
+			
+			
+			System.out.println("-------------------");
+			Instance predicationDataSet = test_data.get(2);
+			double value = classifier.classifyInstance(predicationDataSet);
+			/** Prediction Output */
+			System.out.println("Predicted label:");
+			System.out.print(value);
+			
+			
+		}
+
+	}
+
