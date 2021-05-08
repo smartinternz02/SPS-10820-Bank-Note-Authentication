@@ -62,9 +62,10 @@ public class DataAnalysis {
 			HistogramTrace trace1= HistogramTrace.builder(bank_data.nCol("Variance")).build();
 			Plot.show(new Figure(layout1,trace1));
 			
-			///Layout layout3 = Layout.builder().title("").build();
-			///BoxTrace trace3= BoxTrace.builder(bank_data.categoricalColumn("Skewness"),bank_data.nCol("Variance")).build();
-			///Plot.show(new Figure(layout3,trace3));
+			Layout l2 = Layout.builder().title("Class Distribution").build();
+			BoxTrace t2 = BoxTrace.builder(bank_data.categoricalColumn("Class"),bank_data.nCol("Skewness")).build();
+			Plot.show(new Figure(l2,t2));
+			
 			
 			
 		} catch (IOException e) {
